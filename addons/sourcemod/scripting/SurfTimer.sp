@@ -1,5 +1,6 @@
 /*=========================================================
-=                    CS:GO SurfTimer                      =
+=                    CS:IG SurfTimer                      =
+=         Modified version of "SurfTimer Official"        =
 =       modified version of "SurfTimer" from fluffy       =
 = The original version of this timer was by jonitaikaponi =
 =  https://forums.alliedmods.net/showthread.php?t=264498  =
@@ -25,6 +26,9 @@
 #include <mapchooser>
 #include <discord>
 #include <surftimer>
+#include <sourcecomms>
+#include <smlib/strings>
+
 
 /*===================================
 =            Definitions            =
@@ -42,6 +46,11 @@
 #define SQLITE 1
 #define PERCENT 0x25
 #define QUOTE 0x22
+
+// Vip Titles
+#define MAX_TITLE_LENGTH 128
+#define MAX_TITLES 32
+#define MAX_RAWTITLE_LENGTH 1024
 
 // Chat Colors
 #define WHITE 0x01
@@ -383,10 +392,19 @@ bool g_bInMaxSpeed[MAXPLAYERS + 1];
 /*----------  VIP Variables  ----------*/
 ConVar g_hAutoVipFlag = null;
 int g_VipFlag;
+char g_szTitle[MAXPLAYERS + 1][MAX_TITLE_LENGTH];
+char g_szTitlePlain[MAXPLAYERS + 1][MAX_TITLE_LENGTH];
+char g_szCustomTitleRaw[MAXPLAYERS + 1][MAX_RAWTITLE_LENGTH];
+bool g_bDbCustomTitleInUse[MAXPLAYERS + 1] = false;
+// 0 = name, 1 = text;
+int g_iCustomColours[MAXPLAYERS + 1][2];
+bool g_bUpdatingColours[MAXPLAYERS + 1];
+bool g_bLoaded[MAXPLAYERS + 1];
 bool g_bVip[MAXPLAYERS + 1];
 bool g_bCheckCustomTitle[MAXPLAYERS + 1];
 bool g_bEnableJoinMsgs;
 char g_szCustomJoinMsg[MAXPLAYERS + 1][256];
+
 
 // 1 = PB Sound, 2 = Top 10 Sound, 3 = WR sound
 // char g_szCustomSounds[MAXPLAYERS + 1][3][256];
@@ -394,16 +412,11 @@ char g_szCustomJoinMsg[MAXPLAYERS + 1][256];
 /*----------  Custom Titles  ----------*/
 char g_szCustomTitleColoured[MAXPLAYERS + 1][1024];
 char g_szCustomTitle[MAXPLAYERS + 1][1024];
-bool g_bDbCustomTitleInUse[MAXPLAYERS + 1] = false;
 bool g_bdbHasCustomTitle[MAXPLAYERS + 1] = false;
-
-// 0 = name, 1 = text;
-int g_iCustomColours[MAXPLAYERS + 1][2];
 
 // int g_idbCustomTextColour[MAXPLAYERS + 1] = 0;
 bool g_bHasCustomTextColour[MAXPLAYERS + 1] = false;
 bool g_bCustomTitleAccess[MAXPLAYERS + 1] = false;
-bool g_bUpdatingColours[MAXPLAYERS + 1];
 // char g_szsText[MAXPLAYERS + 1];
 
 // to be used with sm_p, stage sr
@@ -1880,6 +1893,20 @@ public void OnClientPutInServer(int client)
 	if (!IsValidClient(client))
 	return;
 
+	g_bLoaded[client] = false;
+	g_szTitle[client] = "LOADING";
+	g_szTitlePlain[client] = "LOADING";
+	
+	g_bDbCustomTitleInUse[client] = false;
+	g_szCustomTitleRaw[client] = "";
+	
+	g_iCustomColours[client][0] = 0;
+	g_iCustomColours[client][1] = 0;
+	
+	g_bUpdatingColours[client] = false;
+	
+	db_refreshCustomTitles(client);
+
 	// Defaults
 	SetClientDefaults(client);
 	Command_Restart(client, 1);
@@ -1926,7 +1953,7 @@ public void OnClientPutInServer(int client)
 
 	// char fix
 	FixPlayerName(client);
-
+	db_refreshCustomTitles(client);
 	// Position Restoring
 	if (GetConVarBool(g_hcvarRestore) && !g_bRenaming && !g_bInTransactionChain)
 	db_selectLastRun(client);

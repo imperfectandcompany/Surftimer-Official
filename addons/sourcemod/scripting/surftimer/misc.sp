@@ -679,77 +679,46 @@ public void setNameColor(char[] ClientName, int index, int size)
 {
 	switch (index)
 	{
-		case 0: // 1st Rank
-			Format(ClientName, size, "%c%s", WHITE, ClientName);
-		case 1:
-			Format(ClientName, size, "%c%s", DARKRED, ClientName);
-		case 2:
-			Format(ClientName, size, "%c%s", GREEN, ClientName);
-		case 3:
-			Format(ClientName, size, "%c%s", LIMEGREEN, ClientName);
-		case 4:
-			Format(ClientName, size, "%c%s", BLUE, ClientName);
-		case 5:
-			Format(ClientName, size, "%c%s", LIGHTGREEN, ClientName);
-		case 6:
-			Format(ClientName, size, "%c%s", RED, ClientName);
-		case 7:
-			Format(ClientName, size, "%c%s", GRAY, ClientName);
-		case 8:
-			Format(ClientName, size, "%c%s", YELLOW, ClientName);
-		case 9:
-			Format(ClientName, size, "%c%s", LIGHTBLUE, ClientName);
-		case 10:
-			Format(ClientName, size, "%c%s", DARKBLUE, ClientName);
-		case 11:
-			Format(ClientName, size, "%c%s", PINK, ClientName);
-		case 12:
-			Format(ClientName, size, "%c%s", LIGHTRED, ClientName);
-		case 13:
-			Format(ClientName, size, "%c%s", PURPLE, ClientName);
-		case 14:
-			Format(ClientName, size, "%c%s", DARKGREY, ClientName);
-		case 15:
-			Format(ClientName, size, "%c%s", ORANGE, ClientName);
+		case 0:  Format(ClientName, size, "%c%s", WHITE, ClientName); // 1st Rank
+		case 1:  Format(ClientName, size, "%c%s", DARKRED, ClientName);
+		case 2:  Format(ClientName, size, "%c%s", GREEN, ClientName);
+		case 3:  Format(ClientName, size, "%c%s", LIMEGREEN, ClientName);
+		case 4:  Format(ClientName, size, "%c%s", BLUE, ClientName);
+		case 5:  Format(ClientName, size, "%c%s", LIGHTGREEN, ClientName);
+		case 6:  Format(ClientName, size, "%c%s", RED, ClientName);
+		case 7:  Format(ClientName, size, "%c%s", GRAY, ClientName);
+		case 8:  Format(ClientName, size, "%c%s", YELLOW, ClientName);
+		case 9:  Format(ClientName, size, "%c%s", LIGHTBLUE, ClientName);
+		case 10: Format(ClientName, size, "%c%s", DARKBLUE, ClientName);
+		case 11: Format(ClientName, size, "%c%s", PINK, ClientName);
+		case 12: Format(ClientName, size, "%c%s", LIGHTRED, ClientName);
+		case 13: Format(ClientName, size, "%c%s", PURPLE, ClientName);
+		case 14: Format(ClientName, size, "%c%s", DARKGREY, ClientName);
+		case 15: Format(ClientName, size, "%c%s", ORANGE, ClientName);
 	}
 }
+
 
 public void setTextColor(char[] ClientText, int index, int size)
 {
 	switch (index)
 	{
-		case 0: // 1st Rank
-			Format(ClientText, size, "%c%s", WHITE, ClientText);
-		case 1:
-			Format(ClientText, size, "%c%s", DARKRED, ClientText);
-		case 2:
-			Format(ClientText, size, "%c%s", GREEN, ClientText);
-		case 3:
-			Format(ClientText, size, "%c%s", LIMEGREEN, ClientText);
-		case 4:
-			Format(ClientText, size, "%c%s", BLUE, ClientText);
-		case 5:
-			Format(ClientText, size, "%c%s", LIGHTGREEN, ClientText);
-		case 6:
-			Format(ClientText, size, "%c%s", RED, ClientText);
-		case 7:
-			Format(ClientText, size, "%c%s", GRAY, ClientText);
-		case 8:
-			Format(ClientText, size, "%c%s", YELLOW, ClientText);
-		case 9:
-			Format(ClientText, size, "%c%s", LIGHTBLUE, ClientText);
-		case 10:
-			Format(ClientText, size, "%c%s", DARKBLUE, ClientText);
-		case 11:
-			Format(ClientText, size, "%c%s", PINK, ClientText);
-		case 12:
-			Format(ClientText, size, "%c%s", LIGHTRED, ClientText);
-		case 13:
-			Format(ClientText, size, "%c%s", PURPLE, ClientText);
-		case 14:
-			Format(ClientText, size, "%c%s", DARKGREY, ClientText);
-		case 15:
-			Format(ClientText, size, "%c%s", ORANGE, ClientText);
+		case 0:  Format(ClientText, size, "%c%s", WHITE, ClientText); // 1st Rank
+		case 1:  Format(ClientText, size, "%c%s", DARKRED, ClientText);
+		case 2:  Format(ClientText, size, "%c%s", GREEN, ClientText);
+		case 3:  Format(ClientText, size, "%c%s", LIMEGREEN, ClientText);
+		case 4:  Format(ClientText, size, "%c%s", BLUE, ClientText);
+		case 5:  Format(ClientText, size, "%c%s", LIGHTGREEN, ClientText);
+		case 6:  Format(ClientText, size, "%c%s", RED, ClientText);
+		case 7:  Format(ClientText, size, "%c%s", GRAY, ClientText);
+		case 8:  Format(ClientText, size, "%c%s", YELLOW, ClientText);
+		case 9:  Format(ClientText, size, "%c%s", LIGHTBLUE, ClientText);
+		case 10: Format(ClientText, size, "%c%s", DARKBLUE, ClientText);
+		case 11: Format(ClientText, size, "%c%s", PINK, ClientText);
+		case 12: Format(ClientText, size, "%c%s", LIGHTRED, ClientText);
+		case 13: Format(ClientText, size, "%c%s", PURPLE, ClientText);
+		case 14: Format(ClientText, size, "%c%s", DARKGREY, ClientText);
+		case 15: Format(ClientText, size, "%c%s", ORANGE, ClientText);
 	}
 }
 

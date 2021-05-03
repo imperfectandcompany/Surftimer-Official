@@ -279,23 +279,24 @@ public Action Say_Hook(int client, const char[] command, int argc)
 		return Plugin_Handled;
 	}
 
-	if (!GetConVarBool(g_henableChatProcessing))
+	if (!g_henableChatProcessing.BoolValue)
 		return Plugin_Continue;
 
-	if (IsValidClient(client))
-	{
-		if (client > 0)
-			if (BaseComm_IsClientGagged(client))
-				return Plugin_Handled;
+	if (!IsValidClient(client))
+		return Plugin_Continue;
 
-		// Blocked Commands
-		for (int i = 0; i < sizeof(g_BlockedChatText); i++)
+	if (client > 0)
+		if (BaseComm_IsClientGagged(client))
+			return Plugin_Handled;
+
+	// Blocked Commands
+	for (int i = 0; i < sizeof(g_BlockedChatText); i++)
+	{
+		if (StrEqual(g_BlockedChatText[i], sText, true))
 		{
-			if (StrEqual(g_BlockedChatText[i], sText, true))
-			{
-				return Plugin_Handled;
-			}
+			return Plugin_Handled;
 		}
+	}
 
 		// Functions that require the client to input something via the chat box
 		if (g_iWaitingForResponse[client] > -1)
@@ -399,96 +400,104 @@ public Action Say_Hook(int client, const char[] command, int argc)
 			return Plugin_Handled;
 		}
 
-		// !s & !stage Commands
-		if (StrContains(sText, "!s", false) == 0 || StrContains(sText, "!stage", false) == 0)
-			return Plugin_Handled;
-
-		// !b & !bonus Commands
-		if (StrContains(sText, "!b", false) == 0 || StrContains(sText, "!bonus", false) == 0)
-			return Plugin_Handled;
-
-		// Empty Message
-		if (StrEqual(sText, " ") || !sText[0])
-			return Plugin_Handled;
-
-		if (checkSpam(client))
-			return Plugin_Handled;
-
-		parseColorsFromString(sText, 1024);
-
-		// Lowercase
-		if ((sText[0] == '/') || (sText[0] == '!'))
-		{
-			if (IsCharUpper(sText[1]))
-			{
-				for (int i = 0; i <= strlen(sText); ++i)
-					sText[i] = CharToLower(sText[i]);
-				FakeClientCommand(client, "say %s", sText);
-				return Plugin_Handled;
-			}
-		}
-
-		// Hide ! commands
-		if (StrContains(sText, "!", false) == 0)
+	// !s & !stage Commands
+	if (StrContains(sText, "!s", false) == 0 || StrContains(sText, "!stage", false) == 0)
 		return Plugin_Handled;
 
-		if ((IsChatTrigger() && sText[0] == '/') || (sText[0] == '@' && (GetUserFlagBits(client) & ADMFLAG_ROOT || GetUserFlagBits(client) & ADMFLAG_GENERIC)))
+	// !b & !bonus Commands
+	if (StrContains(sText, "!b", false) == 0 || StrContains(sText, "!bonus", false) == 0)
+		return Plugin_Handled;
+
+	// Maptier
+	// if (StrContains(sText, "!map", false) == 0)
+	// {
+	// 	if (CheckCommandAccess(client, "sm_map", ADMFLAG_RESERVATION))
+	// 	{
+	// 		char mapname[1024];
+	// 		mapname = sText;
+	// 		ReplaceString(mapname, 1024, "!map ", "", false);
+	// 		db_selectMapName(mapname);
+	// 	}
+	// 	else
+	// 		return Plugin_Handled;
+	// }
+
+	// Empty Message
+	if (StrEqual(sText, " ") || !sText[0])
+		return Plugin_Handled;
+
+	if (checkSpam(client))
+		return Plugin_Handled;
+
+	parseColorsFromString(sText, 1024);
+
+	/*if (g_bDbCustomTitleInUse[client])
+		Format(sText, 1024, "%s%s", g_szTextColoured[client], sText);*/
+
+	// Lowercase
+	if ((sText[0] == '/') || (sText[0] == '!'))
+	{
+		if (IsCharUpper(sText[1]))
 		{
-			return Plugin_Continue;
-		}
-
-		char szName[64];
-		GetClientName(client, szName, 64);
-		CRemoveColors(szName, 64);
-
-		// log the chat of the player to the server so that tools such as HLSW/HLSTATX see it and also it remains logged in the log file
-		WriteChatLog(client, "say", sText);
-		PrintToServer("%s: %s", szName, sText);
-
-		if (GetConVarBool(g_hPointSystem) && GetConVarBool(g_hColoredNames) && g_bDbCustomTitleInUse[client])
-			setNameColor(szName, g_iCustomColours[client][0], 64);
-
-		if (GetConVarBool(g_hPointSystem) && GetConVarBool(g_hColoredNames) && g_bDbCustomTitleInUse[client] && g_bHasCustomTextColour[client])
-			setTextColor(sText, g_iCustomColours[client][1], 1024);
-
-		if (GetClientTeam(client) == 1)
-		{
-			PrintSpecMessageAll(client);
+			for (int i = 0; i <= strlen(sText); ++i)
+				sText[i] = CharToLower(sText[i]);
+			FakeClientCommand(client, "say %s", sText);
 			return Plugin_Handled;
 		}
-		else
-		{
-			char szChatRank[1024];
-			Format(szChatRank, 1024, "%s", g_pr_chat_coloredrank[client]);
-			char szChatRankColor[1024];
-			Format(szChatRankColor, 1024, "%s", g_pr_chat_coloredrank[client]);
-			CGetRankColor(szChatRankColor, 1024);
-
-			if (GetConVarBool(g_hPointSystem) && GetConVarBool(g_hColoredNames) && !g_bDbCustomTitleInUse[client])
-				Format(szName, sizeof(szName), "{%s}%s", szChatRankColor, szName);
-
-			if (GetConVarBool(g_hCountry) && (GetConVarBool(g_hPointSystem)))
-			{
-				if (IsPlayerAlive(client))
-					CPrintToChatAll("%t", "Hooks6", g_szCountryCode[client], szChatRank, szName, sText);
-				else
-					CPrintToChatAll("%t", "Hooks7", g_szCountryCode[client], szChatRank, szName, sText);
-				return Plugin_Handled;
-			}
-			else
-			{
-				if (GetConVarBool(g_hPointSystem))
-				{
-					if (IsPlayerAlive(client))
-						CPrintToChatAll("%t", "Hooks8", szChatRank, szName, sText);
-					else
-						CPrintToChatAll("%t", "Hooks9", szChatRank, szName, sText);
-					return Plugin_Handled;
-				}
-			}
-		}
 	}
-	return Plugin_Continue;
+
+	// Hide ! commands
+	if (StrContains(sText, "!", false) == 0)
+	return Plugin_Handled;
+
+	// Chat Trigger?
+	if ((IsChatTrigger() && sText[0] == '/') || (sText[0] == '@' && (GetUserFlagBits(client) & ADMFLAG_ROOT || GetUserFlagBits(client) & ADMFLAG_GENERIC)))
+	{
+		return Plugin_Continue;
+	}
+
+	char szName[64];
+	GetClientName(client, szName, 64);
+	CRemoveColors(szName, 64);
+
+	// log the chat of the player to the server so that tools such as HLSW/HLSTATX see it and also it remains logged in the log file
+	WriteChatLog(client, "say", sText);
+	PrintToServer("%s: %s", szName, sText);
+
+	if (IsPlayerVip(client, true, false))
+	{
+		setNameColor(szName, g_iCustomColours[client][0], 64);
+		setTextColor(sText, g_iCustomColours[client][1], 1024);
+	}
+
+	char szChatRank[1024] = "";
+	if (g_bDbCustomTitleInUse[client])
+	{
+		Format(szChatRank, sizeof(szChatRank), "%c%s {default}| %s {default}- ", LIMEGREEN, g_pr_chat_coloredrank[client], g_szTitle[client]);
+		ReplaceString(szChatRank, sizeof(szChatRank), "{style}", "");
+	}
+	
+	if (StrEqual(g_szTitlePlain[client], "")) {
+		Format(szChatRank, sizeof(szChatRank), "%c%s {default}| ", LIMEGREEN, g_pr_chat_coloredrank[client]);
+		ReplaceString(szChatRank, sizeof(szChatRank), "{style}", "");
+	}	
+
+	//char szCountry[1024] = "";
+	//if (g_hCountry.BoolValue && (g_hPointSystem.BoolValue)) {
+	//	Format(szCountry, sizeof(szCountry), "{green}{1} ", g_szCountryCode[client]);
+	//}
+
+	//char szSpec[1024] = "";
+	/*
+	if (GetClientTeam(client) == 1) {
+		szSpec = "*SPEC* ";
+	} else if (!IsPlayerAlive(client)) {
+		szSpec = "*DEAD* ";
+	}
+	*/
+
+	CPrintToChatAll("%s{default}%s{grey}: {default}%s", szChatRank, szName, sText);
+	return Plugin_Handled;
 }
 
 public void CGetRankColor(char[] sMsg, int iSize) // edit from CProcessVariables - colorvars

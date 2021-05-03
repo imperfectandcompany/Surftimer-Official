@@ -9004,16 +9004,16 @@ public void db_updateCustomPlayerNameColour(int client, char[] szSteamID, char[]
 	SQL_TQuery(g_hDb, SQL_updateCustomPlayerNameColourCallback, szQuery, pack, DBPrio_Low);
 }
 
-public void SQL_updateCustomPlayerNameColourCallback(Handle owner, Handle hndl, const char[] error, any pack)
+public void SQL_updateCustomPlayerNameColourCallback(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	ResetPack(pack);
 	int client = ReadPackCell(pack);
 	char szSteamID[32];
 	ReadPackString(pack, szSteamID, 32);
-	CloseHandle(pack);
+	delete pack;
 
 	PrintToServer("Successfully updated custom player colour");
-	db_viewCustomTitles(client, szSteamID);
+	db_refreshCustomTitles(client);
 }
 
 public void db_updateCustomPlayerTextColour(int client, char[] szSteamID, char[] arg)
@@ -9023,20 +9023,20 @@ public void db_updateCustomPlayerTextColour(int client, char[] szSteamID, char[]
 	WritePackString(pack, szSteamID);
 
 	char szQuery[512];
-	Format(szQuery, 512, "UPDATE `ck_vipadmins` SET `textcolour` = '%s' WHERE `steamid` = '%s';", arg, szSteamID);
-	SQL_TQuery(g_hDb, SQL_updateCustomPlayerTextColourCallback, szQuery, pack, DBPrio_Low);
+	Format(szQuery, sizeof(szQuery), "UPDATE `ck_vipadmins` SET `textcolour` = '%s' WHERE `steamid` = '%s';", arg, szSteamID);
+	SQL_TQuery(g_hDb, SQL_updateCustomPlayerTextColourCallback, szQuery, pack);
 }
 
-public void SQL_updateCustomPlayerTextColourCallback(Handle owner, Handle hndl, const char[] error, any pack)
+public void SQL_updateCustomPlayerTextColourCallback(Handle owner, Handle hndl, const char[] error, DataPack pack)
 {
 	ResetPack(pack);
 	int client = ReadPackCell(pack);
 	char szSteamID[32];
 	ReadPackString(pack, szSteamID, 32);
-	CloseHandle(pack);
+	delete pack;
 
 	PrintToServer("Successfully updated custom player text colour");
-	db_viewCustomTitles(client, szSteamID);
+	db_refreshCustomTitles(client);
 }
 
 public void db_toggleCustomPlayerTitle(int client, char[] szSteamID)
@@ -9251,48 +9251,6 @@ public void SQL_ViewPlayerColoursCallback(Handle owner, Handle hndl, const char[
 	}
 }
 
-public int changeColoursMenuHandler(Handle menu, MenuAction action, int client, int item)
-{
-	if (action == MenuAction_Select)
-	{
-		char szType[32];
-		int type;
-		GetMenuItem(menu, item, szType, sizeof(szType));
-		if (StrEqual(szType, "name"))
-			type = 0;
-		else if (StrEqual(szType, "text"))
-			type = 1;
-
-		switch (item)
-		{
-			case 0:db_updateColours(client, g_szSteamID[client], 0, type);
-			case 1:db_updateColours(client, g_szSteamID[client], 1, type);
-			case 2:db_updateColours(client, g_szSteamID[client], 2, type);
-			case 3:db_updateColours(client, g_szSteamID[client], 3, type);
-			case 4:db_updateColours(client, g_szSteamID[client], 4, type);
-			case 5:db_updateColours(client, g_szSteamID[client], 5, type);
-			case 6:db_updateColours(client, g_szSteamID[client], 6, type);
-			case 7:db_updateColours(client, g_szSteamID[client], 7, type);
-			case 8:db_updateColours(client, g_szSteamID[client], 8, type);
-			case 9:db_updateColours(client, g_szSteamID[client], 9, type);
-			case 10:db_updateColours(client, g_szSteamID[client], 10, type);
-			case 11:db_updateColours(client, g_szSteamID[client], 11, type);
-			case 12:db_updateColours(client, g_szSteamID[client], 12, type);
-			case 13:db_updateColours(client, g_szSteamID[client], 13, type);
-			case 14:db_updateColours(client, g_szSteamID[client], 14, type);
-			case 15:db_updateColours(client, g_szSteamID[client], 15, type);
-		}
-	}
-	else
-	if (action == MenuAction_Cancel)
-	{
-		CustomTitleMenu(client);
-	}
-	else if (action == MenuAction_End)
-	{
-		CloseHandle(menu);
-	}
-}
 
 public void db_updateColours(int client, char szSteamId[32], int newColour, int type)
 {
@@ -9303,7 +9261,7 @@ public void db_updateColours(int client, char szSteamId[32], int newColour, int 
 		case 1: Format(szQuery, 512, "UPDATE ck_vipadmins SET textcolour = %i WHERE steamid = '%s';", newColour, szSteamId);
 	}
 
-	SQL_TQuery(g_hDb, SQL_UpdatePlayerColoursCallback, szQuery, client, DBPrio_Low);
+	SQL_TQuery(g_hDb, SQL_UpdatePlayerColoursCallback, szQuery, client);
 }
 
 public void SQL_UpdatePlayerColoursCallback(Handle owner, Handle hndl, const char[] error, any client)
@@ -9315,7 +9273,7 @@ public void SQL_UpdatePlayerColoursCallback(Handle owner, Handle hndl, const cha
 	}
 
 	g_bUpdatingColours[client] = true;
-	db_viewCustomTitles(client, g_szSteamID[client]);
+	db_refreshCustomTitles(client);
 }
 
 // fluffys end custom titles

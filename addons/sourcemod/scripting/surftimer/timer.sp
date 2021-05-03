@@ -366,36 +366,34 @@ public Action SetClanTag(Handle timer, any client)
 	}
 	SetPlayerRank(client);
 
+
 	if (GetConVarBool(g_hCountry))
 	{
 		char szTabRank[1024], szTabClanTag[1024];
-		Format(szTabRank, 1024, "%s", g_pr_chat_coloredrank[client]);
+		Format(szTabRank, 1024, "%s |", g_pr_chat_coloredrank[client]);
 		CRemoveColors(szTabRank, 1024);
-		Format(szTabClanTag, 1024, "%s | %s", g_szCountryCode[client], szTabRank);
-		
-		if ((GetUserFlagBits(client) & ADMFLAG_ROOT || GetUserFlagBits(client) & ADMFLAG_GENERIC)) {
-			if (GetConVarBool(g_iAdminCountryTags))
+		Format(szTabClanTag, 1024, "%s %s -",  szTabRank, g_szTitlePlain[client]);
+	if (StrEqual(g_szTitlePlain[client], "")) {
+		// If no custom tag, default to the timer rank title
 				CS_SetClientClanTag(client, szTabRank);
-			else 
-				CS_SetClientClanTag(client, szTabClanTag);
-		} 
+	}
 		else CS_SetClientClanTag(client, szTabClanTag);
 	}
+
+
+	
 	else
 	{
 		if (GetConVarBool(g_hPointSystem))
 		{
 			char szTabRank[1024], szTabClanTag[1024];
-			Format(szTabRank, 1024, "%s", g_pr_chat_coloredrank[client]);
+			Format(szTabRank, 1024, "%s |", g_pr_chat_coloredrank[client]);
 			CRemoveColors(szTabRank, 1024);
-			Format(szTabClanTag, 1024, "%s", szTabRank);
-			
-			if ((GetUserFlagBits(client) & ADMFLAG_ROOT || GetUserFlagBits(client) & ADMFLAG_GENERIC)) {
-				if (GetConVarBool(g_iAdminCountryTags))
+		Format(szTabClanTag, 1024, "%s %s -",  szTabRank, g_szTitlePlain[client]);
+		if (StrEqual(g_szTitlePlain[client], "")) {
+			// If no custom tag, default to the timer rank title
 					CS_SetClientClanTag(client, szTabRank);
-				else 
-					CS_SetClientClanTag(client, szTabClanTag);
-			} 
+		}
 			else CS_SetClientClanTag(client, szTabClanTag);
 		}
 	}
